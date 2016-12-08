@@ -4,7 +4,8 @@ if [ ! -d "results" ];
 fi
 for entry in "tests"/*
 do
-    echo "$entry" >> results/tests.txt
-    ./grafo.py -f $entry >> results/tests.txt
-    echo "" >> results/tests.txt
+	file=${entry##*/}
+	base=${file%.*}
+    ./grafo.py -f $entry >> results/"$base"_results.txt
+    echo "" >> results/"$base"_results.txt
 done
