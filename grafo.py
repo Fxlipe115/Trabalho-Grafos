@@ -1,3 +1,8 @@
+#!/usr/bin/python3
+import argparse
+import operator
+
+
 class Node(object):
     '''
     Represents a node in the graph.
@@ -35,12 +40,13 @@ class Edge(object):
         """
         self.start = Node(start)
         self.end = Node(end)
+        self.name = str(self)
 
     def __repr__(self):
         """
         __repr__ method override.
         """
-        return repr(str(self.start) + '-' + str(self.end))
+        return str(self.start) + '-' + str(self.end)
 
 
 def read_file(file_path):
@@ -50,33 +56,57 @@ def read_file(file_path):
         try:
             if int(line):
                 line = ''
-        except:
+        except ValueError:
             pass
-        line = line.replace(")",'')
-        line = line.replace("(",'')
+        line = line.replace(")", '')
+        line = line.replace("(", '')
         line = line.split()
         if line:
-            nodes.append(Node(line[0]))
+            nodes.append(line[0])
             for node in line:
                 if node is not line[0]:
-                    edges.append(Edge(line[0],node))
+                    edges.append(Edge(line[0], node))
 
-    return nodes,edges
+    return nodes, sorted(edges, key=operator.attrgetter('name'))
+
 
 def find_path(graph, start, end, path=[]):
-    path = path + [start]
+    """
+    graph:tuple = the graph.
+    start:string = start node.
+    end:string = end node.
+    """
+    path += [start]
     if start == end:
         return path
-    if not start in graph:
+    if not start in graph[0]:
         return None
-    for node in graph[start]:
-        if node not in path:
-            newpath = find_path(graph, node, end, path)
-            if newpath: return newpath
+    for edge in graph[1]:
+        if edge.start.name == start and edge.end.name not in path:
+            newpath = find_path(graph, edge.end.name, end, path)
+            if newpath:
+                return newpath
     return None
 
 if __name__ == '__main__':
-    filename = input()
-    nodes, edges = read_file(filename)
-    graph = (nodes, edges)
-    print(graph)
+    PRS = argparse.ArgumentParser(description='Trabalho de Grafos 2016/2'
+                                  + '\n\tArthur Zachow Coelho'
+                                  + '\n\tFelipe de Almeida Graeff'
+                                  + '\n\tHenrique Barboza',
+                                  formatter_class=argparse.RawTextHelpFormatter)
+    PRS.add_argument('-f', dest='file', required=True, help='The graph file.')
+    ARGS = PRS.parse_args()
+    FILENAME = ARGS.file
+    NODES, EDGES = read_file(FILENAME)
+    GRAPH = (NODES, EDGES)
+    print('Graph:')
+    print(GRAPH)
+    componente = []
+    for node in GRAPH[0]:
+        for node1 in list(reversed(GRAPH[0])):
+            if find_path(GRAPH, node, node1) and find_path(GRAPH, node1, node):
+                componente.append(node)
+                componente.append(node1)
+    print(list(set(componente)))
+    """print('Path:')
+    print(find_path(GRAPH, '1', '3'))"""
