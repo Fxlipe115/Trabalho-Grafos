@@ -1,37 +1,12 @@
 #!/usr/bin/python3
 import argparse
 import operator
-import collections
-
-
-class Queue:
-    def __init__(self):
-        self.elements = collections.deque()
-
-    def empty(self):
-        return len(self.elements) == 0
-
-    def put(self, x):
-        self.elements.append(x)
-
-    def get(self):
-        return self.elements.popleft()
-
-
-class SimpleGraph:
-    def __init__(self):
-        self.edges = {}
-
-    def neighbors(self, id):
-        return self.edges[id]
-
 import sys
 import time
 import resource
 from itertools import groupby
 from collections import defaultdict
- 
- 
+
 #set rescursion limit and stack size limit
 sys.setrecursionlimit(10 ** 6)
 resource.setrlimit(resource.RLIMIT_STACK, (2 ** 29, 2 ** 30))
@@ -60,7 +35,6 @@ def dfs(graph_dict, node, track):
     track.current_time += 1
     track.finish_time[node] = track.current_time
 
-
 def dfs_loop(graph_dict, nodes, track):
     """Outter loop checks out all SCCs. Current source node changes when one
     SCC inner loop finishes."""
@@ -69,7 +43,6 @@ def dfs_loop(graph_dict, nodes, track):
         if node not in track.explored:
             track.current_source = node
             dfs(graph_dict, node, track)
-
 
 def scc(graph, reverse_graph, nodes):
     """First runs dfs_loop on reversed graph with nodes in decreasing order,
@@ -91,7 +64,7 @@ def scc(graph, reverse_graph, nodes):
     return out
 
 def read_file(file_path):
-    graph = SimpleGraph()
+    graph = {}
     for line in open(file_path):
         try:
             if int(line):
@@ -104,46 +77,12 @@ def read_file(file_path):
         if line:
             for node in line:
                 try:
-                    graph.edges[int(line[0])].append(int(node))
+                    graph[int(line[0])].append(int(node))
                 except KeyError:
                     if node is not line[0]:
-                        graph.edges.update({int(line[0]):[int(node)]})
+                        graph.update({int(line[0]):[int(node)]})
 
     return graph
-
-def breadth_search(graph, start):
-    frontier = Queue()
-    frontier.put(start)
-    visited = {}
-    visited[start] = True
-
-    while not frontier.empty():
-        current = frontier.get()
-        print("Visiting %r" % current)
-        for next in graph.neighbors(current):
-            if next not in visited:
-                frontier.put(next)
-                visited[next] = True
-
-    return visited
-
-def find_path(graph, start, end, path=[]):
-    """
-    graph:tuple = the graph.
-    start:string = start node.
-    end:string = end node.
-    """
-    path += [start]
-    if start == end:
-        return path
-    if not start in graph[0]:
-        return None
-    for edge in graph[1]:
-        if edge.start.name == start and edge.end.name not in path:
-            newpath = find_path(graph, edge.end.name, end, path)
-            if newpath:
-                return newpath
-    return None
 
 if __name__ == '__main__':
     PRS = argparse.ArgumentParser(description='Trabalho de Grafos 2016/2'
@@ -166,13 +105,8 @@ if __name__ == '__main__':
 
     comp = []
     print('Graph:')
-    print(GRAPH.edges)
-    print(scc(GRAPH.edges, rev, [0, 1, 2, 3, 4, 5]))
-"""
-    for key in GRAPH.edges:
-        print(key + ':')
-        visited = breadth_search(GRAPH, key)
-        comp.append(list(visited.keys()))
-        print()
-    print(comp)
-"""
+    print(GRAPH)
+    print('Components:')
+    comp = scc(GRAPH, rev, [0, 1, 2, 3, 4, 5])
+    for componente in comp:
+        print(comp[componente])
