@@ -1,57 +1,33 @@
 #!/usr/bin/python3
 import argparse
 import operator
+import collections
 
 
-class Node(object):
-    '''
-    Represents a node in the graph.
+class Queue:
+    def __init__(self):
+        self.elements = collections.deque()
 
-    Input:
-    name: string = name of the node
-    '''
+    def empty(self):
+        return len(self.elements) == 0
 
-    def __init__(self, name):
-        """
-        Class constructor.
-        """
-        self.name = str(name)
-        self.flag = 0
+    def put(self, x):
+        self.elements.append(x)
 
-    def __repr__(self):
-        """
-        __repr__ method override.
-        """
-        return self.name
+    def get(self):
+        return self.elements.popleft()
 
 
-class Edge(object):
-    """
-    Represents an edge in the graph.
+class SimpleGraph:
+    def __init__(self):
+        self.edges = {}
 
-    Inputs:
-    start:Node = start node of the edge
-    end:Node = end node of the edge
-    """
-
-    def __init__(self, start, end):
-        """
-        Class constructor.
-        """
-        self.start = Node(start)
-        self.end = Node(end)
-        self.name = str(self)
-
-    def __repr__(self):
-        """
-        __repr__ method override.
-        """
-        return str(self.start) + '-' + str(self.end)
+    def neighbors(self, id):
+        return self.edges[id]
 
 
 def read_file(file_path):
-    nodes = []
-    edges = []
+    graph = SimpleGraph()
     for line in open(file_path):
         try:
             if int(line):
@@ -62,13 +38,31 @@ def read_file(file_path):
         line = line.replace("(", '')
         line = line.split()
         if line:
-            nodes.append(line[0])
             for node in line:
-                if node is not line[0]:
-                    edges.append(Edge(line[0], node))
+                try:
+                    if graph.edges[line[0]]:
+                        graph.edges[line[0]].append(node)
+                except KeyError:
+                    if node is not line[0]:
+                        graph.edges.update({line[0]:[node]})
 
-    return nodes, sorted(edges, key=operator.attrgetter('name'))
+    return graph
 
+def breadth_search(graph, start):
+    frontier = Queue()
+    frontier.put(start)
+    visited = {}
+    visited[start] = True
+
+    while not frontier.empty():
+        current = frontier.get()
+        print("Visiting %r" % current)
+        for next in graph.neighbors(current):
+            if next not in visited:
+                frontier.put(next)
+                visited[next] = True
+
+    return visited
 
 def find_path(graph, start, end, path=[]):
     """
@@ -97,16 +91,14 @@ if __name__ == '__main__':
     PRS.add_argument('-f', dest='file', required=True, help='The graph file.')
     ARGS = PRS.parse_args()
     FILENAME = ARGS.file
-    NODES, EDGES = read_file(FILENAME)
-    GRAPH = (NODES, EDGES)
+    GRAPH = read_file(FILENAME)
+    comp = []
     print('Graph:')
-    print(GRAPH)
-    componente = []
-    for node in GRAPH[0]:
-        for node1 in list(reversed(GRAPH[0])):
-            if find_path(GRAPH, node, node1) and find_path(GRAPH, node1, node):
-                componente.append(node)
-                componente.append(node1)
-    print(list(set(componente)))
-    """print('Path:')
-    print(find_path(GRAPH, '1', '3'))"""
+    print(GRAPH.edges)
+
+    for key in GRAPH.edges:
+        print(key + ':')
+        visited = breadth_search(GRAPH, key)
+        comp.append(list(visited.keys()))
+        print()
+    print(comp)
