@@ -1,9 +1,9 @@
 # Trabalho final sobre grafos!
 
 Feito em Python3 para Linux, outras plataformas não são compatíveis com o módulo "resource" que existe apenas para UNIX.
-========================================================================================================================
+
 Para utilizar o programa:
-=========================
+
 ```sh
 ./grafo.py -h
 ```
