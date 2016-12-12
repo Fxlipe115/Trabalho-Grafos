@@ -1,11 +1,7 @@
-if [ ! -d "results" ];
-    then
-    mkdir results
-fi
+mkdir -p results
 for entry in "tests"/*
 do
 	file=${entry##*/}
 	base=${file%.*}
-    ./grafo.py -f $entry >> results/"$base"_results.txt
-    echo "" >> results/"$base"_results.txt
+    ./grafo.py -f $entry > results/"$base"_results.txt
 done
