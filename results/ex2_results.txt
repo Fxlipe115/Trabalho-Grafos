@@ -1,0 +1,7 @@
+Components:
+[0, 1, 2, 5, 6]
+[8]
+[3, 4, 7]
+
+ERROR: Cyclic graph!
+

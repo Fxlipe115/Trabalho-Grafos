@@ -88,7 +88,7 @@ def read_file(file_path):
     """
     Read the file and generate the graph.
     """
-    graph = {}
+    '''    graph = {}
     for line in open(file_path):
         try:
             if int(line):
@@ -106,8 +106,12 @@ def read_file(file_path):
                     graph[int(line[0])].append(int(node))
                 except KeyError:
                     if node is not line[0]:
-                        graph.update({int(line[0]):[int(node)]})
-
+                        graph.update({int(line[0]):[int(node)]})'''
+    graph = {}
+    with open(file_path) as f:
+        nos = [x.strip().split() for x in f.read().replace('(',' ').replace(')',' ').strip().split('\n')][1:]
+    for no in nos:
+        graph[int(no[0])] = [int(x) for x in no[1:]]
     return graph
 
 def part_1(graph):
